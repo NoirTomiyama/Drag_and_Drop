@@ -17,14 +17,18 @@ import android.widget.LinearLayout;
 
 public class MainActivity extends AppCompatActivity {
 
+    // パラメータ変数
     private final int MP = ViewGroup.LayoutParams.MATCH_PARENT;
     private final int WC = ViewGroup.LayoutParams.WRAP_CONTENT;
 
+    // レイアウト
     HorizontalScrollView horizontalScrollView;
     LinearLayout linearLayout;
 
+    // カードリソース
     private int[] resources;
 
+    // 10の位、1の位のImageView
     private ImageView tenImageView;
     private ImageView oneImageView;
 
@@ -33,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean flagOne = false;
 
     // 選択しているカードの数
-    private int judgeNumber = 0;
+    private int chooseNumber = 0;
 
     // 現在の数字
     private int tenNumber = 0;
@@ -49,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // 関連付け
         horizontalScrollView = findViewById(R.id.horizontalScrollView);
         linearLayout = findViewById(R.id.linearLayout);
         tenImageView = findViewById(R.id.tenImageView);
@@ -58,23 +63,30 @@ public class MainActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         Point p = new Point();
         display.getSize(p);
+        // デバッグログ
         Log.d("p.x", String.valueOf(p.x));
         Log.d("p.y", String.valueOf(p.y));
 
-        // linearLayoutにaddViewするImageView
+        // LayoutにaddViewするImageView
         final ImageView[] imageCards = new ImageView[10];
         cards = new Card[10];
 
+        // 0-9までのカードを用意
         resources = new int[]{
                 R.drawable.zero,  R.drawable.one,   R.drawable.two, R.drawable.three,
                 R.drawable.four,  R.drawable.five,  R.drawable.six, R.drawable.seven,
                 R.drawable.eight, R.drawable.nine
         };
 
+        // Cardクラス変数のインスタンス生成
         for(int i = 0; i < 10; i++){
             imageCards[i] = new ImageView(this);
             cards[i] = new Card(resources[i]);
         }
+
+        // カードの範囲内かどうか判定
+        // isCards[0] -> 10の位 / isCards[1] -> 1の位 を示す
+        final boolean[] isCards = {false,false};
 
         tenImageView.setOnDragListener(new View.OnDragListener() {
             @Override
@@ -86,11 +98,17 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("ACTION_DRAG_EXITED","DragEvent.ACTION_DRAG_EXITED");
                         break;
                     case DragEvent.ACTION_DROP:
-//                        x = dragEvent.getX();
-//                        y = dragEvent.getY();
+                        float x = dragEvent.getX();
+                        float y = dragEvent.getY();
+                        Log.d("(x,y)","(" + x + "," + y + ")");
                         Log.d("ACTION_DROP","DragEvent.ACTION_DROP");
                         // 1の位の判定値をfalseに
                         flagOne = false;
+
+                        // カードが範囲内かどうか判定
+                        isCards[0] = true;
+                        isCards[1] = false;
+
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
                         // 10の位の判定値をtrueに
@@ -117,6 +135,11 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("ACTION_DROP","DragEvent.ACTION_DROP");
                         // 10の位の判定値をfalseに
                         flagTen = false;
+
+                        // カードが範囲内かどうか判定
+                        isCards[0] = false;
+                        isCards[1] = true;
+
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
                         // 1の位の判定値をtrueに
@@ -137,10 +160,11 @@ public class MainActivity extends AppCompatActivity {
             imageCards[i].setImageResource(resources[i]);
             linearLayout.addView(imageCards[i],params);
             final int finalI = i;
+            // 長押しの際のリスナー登録
             imageCards[i].setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    judgeNumber = finalI;
+                    chooseNumber = finalI;
                     Log.d("finalI", String.valueOf(finalI));
                     ClipData clipData = ClipData.newPlainText("card" + finalI, "Drag");
                     view.startDrag(clipData, new View.DragShadowBuilder(view), view, 0);
@@ -148,10 +172,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+            // ドラッグの際のリスナー登録
             imageCards[i].setOnDragListener(new View.OnDragListener() {
                 @Override
                 public boolean onDrag(View view, DragEvent dragEvent) {
-                    if(dragEvent.getAction() == DragEvent.ACTION_DRAG_ENDED){
+                    // ドラッグの終了 および カード範囲内であったら
+                    if(dragEvent.getAction() == DragEvent.ACTION_DRAG_ENDED
+                        && (isCards[0] || isCards[1]) ){
 
                         Log.d("flagTen", String.valueOf(flagTen));
                         Log.d("flagOne", String.valueOf(flagOne));
@@ -166,16 +193,16 @@ public class MainActivity extends AppCompatActivity {
                                 cards[tenNumber].setStatus(false);
                             }
 
-                            tenImageView.setImageResource(resources[judgeNumber]);
-                            Log.d("resources(Ten)", String.valueOf(judgeNumber));
+                            tenImageView.setImageResource(resources[chooseNumber]);
+                            Log.d("resources(Ten)", String.valueOf(chooseNumber));
 
-                            tenNumber = judgeNumber;
-
+                            tenNumber = chooseNumber;
 
                             // 裏面にする処理
-                            changeView(judgeNumber);
+                            changeView(chooseNumber);
 
                         }
+
                         if(flagOne){
 
                             // 前のカードを選択可能(表に)に
@@ -186,18 +213,21 @@ public class MainActivity extends AppCompatActivity {
                                 cards[oneNumber].setStatus(false);
                             }
 
-                            oneImageView.setImageResource(resources[judgeNumber]);
-                            Log.d("resources(One)", String.valueOf(judgeNumber));
-                            oneNumber = judgeNumber;
+                            oneImageView.setImageResource(resources[chooseNumber]);
+                            Log.d("resources(One)", String.valueOf(chooseNumber));
+                            oneNumber = chooseNumber;
 
                             // 裏面にする処理
-                            changeView(judgeNumber);
+                            changeView(chooseNumber);
 
                         }
 
                         // 合計数字の算出
                         sumNumber = tenNumber * 10 + oneNumber;
                         Log.d("sum", String.valueOf(sumNumber));
+
+                        isCards[0] = false;
+                        isCards[1] = false;
 
                         return false;
                     }
@@ -215,7 +245,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                     return false;
                 }
-
             });
         }
     }
