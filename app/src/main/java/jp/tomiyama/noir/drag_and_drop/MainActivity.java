@@ -2,9 +2,11 @@ package jp.tomiyama.noir.drag_and_drop;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
+import android.content.Context;
 import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.DragEvent;
@@ -16,6 +18,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 public class MainActivity extends AppCompatActivity {
+
+    /**
+     * dpからpixelへの変換
+     * @param dp
+     * @param context
+     * @return float pixel
+     */
+    public static float convertDp2Px(float dp, Context context){
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return dp * metrics.density;
+    }
 
     // パラメータ変数
     private final int MP = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -88,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         // isCards[0] -> 10の位 / isCards[1] -> 1の位 を示す
         final boolean[] isCards = {false,false};
 
+        // 10の位のドラッグ処理
         tenImageView.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View view, DragEvent dragEvent) {
@@ -122,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // 1の位のドラッグ処理
         oneImageView.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View view, DragEvent dragEvent) {
@@ -154,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // 画面横幅の1/4サイズ分をカードの横幅に設定
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(p.x/4, MP);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) (p.x/5 - convertDp2Px(8,this)), MP);
 
         for(int i = 0; i < 10; i++){
             imageCards[i].setImageResource(resources[i]);
