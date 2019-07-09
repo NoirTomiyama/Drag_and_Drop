@@ -2,50 +2,27 @@ package jp.tomiyama.noir.drag_and_drop;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
-import android.content.Context;
-import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 public class MainActivity extends AppCompatActivity {
 
-    /**
-     * dpからpixelへの変換
-     * @param dp
-     * @param context
-     * @return float pixel
-     */
-    public static float convertDp2Px(float dp, Context context){
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        return dp * metrics.density;
-    }
-
-    // パラメータ変数
-    private final int MP = ViewGroup.LayoutParams.MATCH_PARENT;
-    private final int WC = ViewGroup.LayoutParams.WRAP_CONTENT;
-
-    // レイアウト
-    HorizontalScrollView horizontalScrollView;
-    LinearLayout linearLayout;
-
     // カードリソース
     private int[] resources;
+
+    // 0-6までのImageView
+    private ImageView[] imageCards;
 
     // 10の位、1の位のImageView
     private ImageView tenImageView;
     private ImageView oneImageView;
 
-    // ドラッグしているものが一の位(or 十の位)の画像中にあるかを判定する変数
+    // ドラッグしているものが一の位(or 十の位)の画像中にあるかを判定
     private boolean flagTen = false;
     private boolean flagOne = false;
 
@@ -54,8 +31,9 @@ public class MainActivity extends AppCompatActivity {
 
     // 現在の数字
     private int tenNumber = 0;
-    private int oneNumber = 0;
-    private int sumNumber = 0;
+    // Note: 実装方法考える
+    private int oneNumber = 6; // 初期値を6とする
+    private int sumNumber = 6; // 初期値を6とする
 
     // カードの状態を保存する変数
     private Card[] cards;
@@ -67,39 +45,40 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // 関連付け
-        horizontalScrollView = findViewById(R.id.horizontalScrollView);
-        linearLayout = findViewById(R.id.linearLayout);
         tenImageView = findViewById(R.id.tenImageView);
         oneImageView = findViewById(R.id.oneImageView);
 
-        // 画面サイズの取得
-        Display display = getWindowManager().getDefaultDisplay();
-        Point p = new Point();
-        display.getSize(p);
-        // デバッグログ
-        Log.d("p.x", String.valueOf(p.x));
-        Log.d("p.y", String.valueOf(p.y));
+        // LayoutにaddするImageView
+        imageCards = new ImageView[6];
 
-        // LayoutにaddViewするImageView
-        final ImageView[] imageCards = new ImageView[10];
-        cards = new Card[10];
+        int[] imageIds = new int[]{
+                R.id.imageView, R.id.imageView2, R.id.imageView3,
+                R.id.imageView4, R.id.imageView5, R.id.imageView6
+        };
 
-        // 0-9までのカードを用意
+        // 関連付け
+        for(int i = 0; i < 6; i++){
+            imageCards[i] = findViewById(imageIds[i]);
+        }
+
+        // 7つ目に空を入れる
+        cards = new Card[7];
+
+        // 0-5までのカードを用意 + 空
         resources = new int[]{
-                R.drawable.zero,  R.drawable.one,   R.drawable.two, R.drawable.three,
-                R.drawable.four,  R.drawable.five,  R.drawable.six, R.drawable.seven,
-                R.drawable.eight, R.drawable.nine
+                R.drawable.zero,  R.drawable.one,   R.drawable.two,
+                R.drawable.three, R.drawable.four,  R.drawable.five,
+                R.drawable.empty
         };
 
         // Cardクラス変数のインスタンス生成
-        for(int i = 0; i < 10; i++){
-            imageCards[i] = new ImageView(this);
+        for(int i = 0; i < 7; i++){
             cards[i] = new Card(resources[i]);
         }
 
         // カードの範囲内かどうか判定
         // isCards[0] -> 10の位 / isCards[1] -> 1の位 を示す
-        final boolean[] isCards = {false,false};
+        final boolean[] isCards = {false, false};
 
         // 10の位のドラッグ処理
         tenImageView.setOnDragListener(new View.OnDragListener() {
@@ -114,14 +93,15 @@ public class MainActivity extends AppCompatActivity {
                     case DragEvent.ACTION_DROP:
                         float x = dragEvent.getX();
                         float y = dragEvent.getY();
+
                         Log.d("(x,y)","(" + x + "," + y + ")");
                         Log.d("ACTION_DROP","DragEvent.ACTION_DROP");
                         // 1の位の判定値をfalseに
                         flagOne = false;
 
                         // カードが範囲内かどうか判定
-                        isCards[0] = true;
-                        isCards[1] = false;
+                        isCards[0] = true; // 10の位 -> true
+                        isCards[1] = false; // 1の位 -> false
 
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
@@ -145,22 +125,28 @@ public class MainActivity extends AppCompatActivity {
                         // 1の位の判定値をfalseに
                         flagOne = false;
                         Log.d("ACTION_DRAG_EXITED","DragEvent.ACTION_DRAG_EXITED");
+
                         break;
+
                     case DragEvent.ACTION_DROP:
                         Log.d("ACTION_DROP","DragEvent.ACTION_DROP");
+
                         // 10の位の判定値をfalseに
                         flagTen = false;
 
                         // カードが範囲内かどうか判定
-                        isCards[0] = false;
-                        isCards[1] = true;
+                        isCards[0] = false; // 10の位 -> false
+                        isCards[1] = true;  // 1の位 -> true
 
                         break;
+
                     case DragEvent.ACTION_DRAG_ENTERED:
+
                         // 1の位の判定値をtrueに
                         flagOne = true;
                         Log.d("ACTION_DRAG_ENTERED","DragEvent.ACTION_DRAG_ENTERED");
                         break;
+
                     default:
                         break;
                 }
@@ -168,16 +154,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 画面横幅の1/6サイズ分をカードの横幅に設定
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) ((p.x - convertDp2Px(16,this))/ 6), MP);
 
-        float margin = convertDp2Px(4,this);
-        params.setMargins(0,(int) margin,0,(int) margin);
-
-
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 6; i++){
             imageCards[i].setImageResource(resources[i]);
-            linearLayout.addView(imageCards[i],params);
             final int finalI = i;
             // 長押しの際のリスナー登録
             imageCards[i].setOnLongClickListener(new View.OnLongClickListener() {
@@ -195,9 +174,9 @@ public class MainActivity extends AppCompatActivity {
             imageCards[i].setOnDragListener(new View.OnDragListener() {
                 @Override
                 public boolean onDrag(View view, DragEvent dragEvent) {
-                    // ドラッグの終了 および カード範囲内であったら
+                    // ドラッグの終了 かつ カード範囲内であったら
                     if(dragEvent.getAction() == DragEvent.ACTION_DRAG_ENDED
-                        && (isCards[0] || isCards[1]) ){
+                            && (isCards[0] || isCards[1]) ){
 
                         Log.d("flagTen", String.valueOf(flagTen));
                         Log.d("flagOne", String.valueOf(flagOne));
@@ -214,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
 
                             tenImageView.setImageResource(resources[chooseNumber]);
                             Log.d("resources(Ten)", String.valueOf(chooseNumber));
-
                             tenNumber = chooseNumber;
 
                             // 裏面にする処理
@@ -241,7 +219,8 @@ public class MainActivity extends AppCompatActivity {
 
                         }
 
-                        // 合計数字の算出
+                        // 合計数字の算出 (tenNumber と oneNumberが6のとき、要対応)
+                        // 二桁入っていないと、次に進めないようにすればOK
                         sumNumber = tenNumber * 10 + oneNumber;
                         Log.d("sum", String.valueOf(sumNumber));
 
@@ -257,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
             imageCards[i].setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent event) {
-                    // 既に使用済みのカードは使用不可にする
+                    // 既に使用中のカードは使用不可にする
                     if(cards[finalI].isStatus()) {
                         Log.d("Error","そのカードは選択できません");
                         return true;
@@ -270,10 +249,9 @@ public class MainActivity extends AppCompatActivity {
 
     // 選択したカードを裏返しにし、前のカードを復活させる
     public void changeView(int index){
-        ImageView imageView = (ImageView) linearLayout.getChildAt(index);
         // statusをtrueにする
         cards[index].setStatus(true);
-        imageView.setImageResource(cards[index].getBack());
+        imageCards[index].setImageResource(cards[index].getBack());
     }
 
 }

@@ -4,7 +4,7 @@ import android.widget.ImageView;
 
 public class Card {
 
-    // カードが表か裏か
+    // カードが表か裏か(未使用->false)
     private boolean status;
 
     private int front;
@@ -13,8 +13,7 @@ public class Card {
     public Card(int front) {
         this.front = front;
 
-        // 初期値代入
-        status = false; // 未使用
+        status = false;
         back = R.drawable.back;
     }
 
