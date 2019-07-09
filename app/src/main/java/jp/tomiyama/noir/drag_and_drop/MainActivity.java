@@ -168,8 +168,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 画面横幅の1/4サイズ分をカードの横幅に設定
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) (p.x/5 - convertDp2Px(8,this)), MP);
+        // 画面横幅の1/6サイズ分をカードの横幅に設定
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) ((p.x - convertDp2Px(16,this))/ 6), MP);
+
+        float margin = convertDp2Px(4,this);
+        params.setMargins(0,(int) margin,0,(int) margin);
+
 
         for(int i = 0; i < 10; i++){
             imageCards[i].setImageResource(resources[i]);
