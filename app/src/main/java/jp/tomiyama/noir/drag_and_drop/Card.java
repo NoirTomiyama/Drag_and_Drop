@@ -1,8 +1,6 @@
 package jp.tomiyama.noir.drag_and_drop;
 
-import android.widget.ImageView;
-
-public class Card {
+class Card {
 
     // カードが表か裏か
     private boolean status;
@@ -10,27 +8,27 @@ public class Card {
     private int front;
     private int back;
 
-    public Card(int front) {
+    Card(int front, int back) {
         this.front = front;
+        this.back = back;
 
-        // 初期値代入
-        status = false; // 未使用
-        back = R.drawable.back;
+        // 未使用
+        status = false;
     }
 
-    public boolean isStatus() {
+    boolean isStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    void setStatus(boolean status) {
         this.status = status;
     }
 
-    public int getFront() {
+    int getFront() {
         return front;
     }
 
-    public int getBack() {
+    int getBack() {
         return back;
     }
 }
