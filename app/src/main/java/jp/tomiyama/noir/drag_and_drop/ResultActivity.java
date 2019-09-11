@@ -16,10 +16,6 @@ public class ResultActivity extends AppCompatActivity {
   // 勝敗の管理
   // 遷移先の決定
 
-  private SharedPreferences pref;
-  private int player1_score = 0;
-  private int player2_score = 0;
-
   private final String PLAYER1_SCORE = "player1_score";
   private final String PLAYER2_SCORE = "player2_score";
 
@@ -36,10 +32,10 @@ public class ResultActivity extends AppCompatActivity {
     score2_textView = findViewById(R.id.player2_score);
 
     // SharedPreferencesの準備
-    pref = getSharedPreferences("numeric_app",MODE_PRIVATE);
+    SharedPreferences pref = getSharedPreferences("numeric_app", MODE_PRIVATE);
 
-    player1_score = pref.getInt(PLAYER1_SCORE,0);
-    player2_score = pref.getInt(PLAYER2_SCORE,0);
+    int player1_score = pref.getInt(PLAYER1_SCORE, 0);
+    int player2_score = pref.getInt(PLAYER2_SCORE,0);
 
     // TODO 時間差
     score1_textView.setText(String.valueOf(player1_score));
