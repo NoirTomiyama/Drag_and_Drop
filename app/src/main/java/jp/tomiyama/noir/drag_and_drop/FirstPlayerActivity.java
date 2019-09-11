@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -20,6 +21,8 @@ import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import maes.tech.intentanim.CustomIntent;
 
 public class FirstPlayerActivity extends AppCompatActivity {
 
@@ -40,28 +43,27 @@ public class FirstPlayerActivity extends AppCompatActivity {
   };
 
   // 10の位、1の位のImageView
-  private ImageView tenImageView;
-  private ImageView oneImageView;
+  private ImageView tenImageView, oneImageView;
 
   // 選択しているカードの数
   private int chooseNumber = 0;
 
   // 現在の数字
-  private int tenNumber = 0;
-  private int oneNumber = 0;
-  private int sumNumber = 0;
+  private int tenNumber,oneNumber,sumNumber;
 
   // カードの状態を保存する変数
   private Card[] cards;
 
-//  private Player player;
-
   // 両方ともに数字が入っているのかチェックする変数
-  private boolean isUsedTen = false;
-  private boolean isUsedOne = false;
+  private boolean isUsedTen, isUsedOne;
 
   private SharedPreferences pref;
   private final String PLAYER1_INDEX = "player1_index_";
+  private final String PLAYER1_SCORE = "player1_score";
+
+  // TODO
+  // 縦向きなら、画像の横幅を4分の１に
+  // 横向きなら、画像の横幅を6分の１に
 
   @SuppressLint("ClickableViewAccessibility")
   @Override
@@ -86,20 +88,14 @@ public class FirstPlayerActivity extends AppCompatActivity {
 //    Log.d("p.x", String.valueOf(p.x));
 //    Log.d("p.y", String.valueOf(p.y));
 
-//    // NOTE : SharedPreferencesのみで保存するため，Player自体はアクティビティごとでのインスタンス生成となる
-//    player = new Player();
-
     // LayoutにaddViewするImageView
     final ImageView[] imageCards = new ImageView[10];
     cards = new Card[10];
-
-    // TODO ステータス情報をSharedPreferencesから取得する
 
     // Cardクラス変数のインスタンス生成
     for (int i = 0; i < 10; i++) {
       imageCards[i] = new ImageView(this);
       cards[i] = new Card(resources[i], R.drawable.back);
-      // TODO statusの変更
     }
 
     // カードの範囲内かどうか判定
@@ -162,11 +158,11 @@ public class FirstPlayerActivity extends AppCompatActivity {
     });
 
     // 画面横幅の1/6サイズ分をカードの横幅に設定
-    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) ((p.x - convertDp2Px(16, this)) / 6), MP);
+    LinearLayout.LayoutParams params
+        = new LinearLayout.LayoutParams((int) ((p.x - convertDp2Px(16, this)) / 6), MP);
 
     float margin = convertDp2Px(4, this);
     params.setMargins(0, (int) margin, 0, (int) margin);
-
 
     for (int i = 0; i < 10; i++) {
       imageCards[i].setImageResource(resources[i]);
@@ -281,9 +277,14 @@ public class FirstPlayerActivity extends AppCompatActivity {
                   String key = PLAYER1_INDEX + i;
                   editor.putBoolean(key, cards[i].isStatus());
                 }
+                editor.putInt(PLAYER1_SCORE,sumNumber);
                 editor.apply();
 
-                init();
+                Intent intent = new Intent(getApplicationContext(),SecondPlayerActivity.class);
+                startActivity(intent);
+                CustomIntent.customType(FirstPlayerActivity.this,"left-to-right");
+
+                finish();
 
               }
             });
@@ -291,21 +292,9 @@ public class FirstPlayerActivity extends AppCompatActivity {
       }
     });
 
-//    SharedPreferences.Editor editor =  pref.edit();
-//    for(int i = 0; i < 10; i++){
-//      String key = string + i;
-//      editor.putBoolean(key, cards[i].isStatus());
-//    }
-//    editor.apply();
+    // 初期化処理
+    init();
 
-  }
-
-  // 選択したカードを裏返しにする
-  public void changeView(int index) {
-    ImageView imageView = (ImageView) linearLayout.getChildAt(index);
-    // statusをtrueにする
-    cards[index].setStatus(true);
-    imageView.setImageResource(cards[index].getBack());
   }
 
   public void init(){
@@ -328,6 +317,16 @@ public class FirstPlayerActivity extends AppCompatActivity {
       }
     }
   }
+
+  // 選択したカードを裏返しにする
+  public void changeView(int index) {
+    ImageView imageView = (ImageView) linearLayout.getChildAt(index);
+    // statusをtrueにする
+    cards[index].setStatus(true);
+    imageView.setImageResource(cards[index].getBack());
+  }
+
+
 
   /**
    * dpからpixelへの変換

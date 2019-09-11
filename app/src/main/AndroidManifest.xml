@@ -10,8 +10,10 @@
         android:screenOrientation="userLandscape"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SecondPlayerActivity"></activity>
-        <activity android:name=".StartActivity">
+        <activity android:name=".ResultActivity"></activity>
+        <activity android:name=".SecondPlayerActivity" />
+        <activity android:name=".StartActivity"
+            android:screenOrientation="userLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />

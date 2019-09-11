@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.support.design.widget.FloatingActionButton;
@@ -20,6 +21,8 @@ import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import maes.tech.intentanim.CustomIntent;
 
 public class SecondPlayerActivity extends AppCompatActivity {
 
@@ -46,9 +49,7 @@ public class SecondPlayerActivity extends AppCompatActivity {
   private int chooseNumber = 0;
 
   // 現在の数字
-  private int tenNumber = 0;
-  private int oneNumber = 0;
-  private int sumNumber = 0;
+  private int tenNumber,oneNumber,sumNumber;
 
   // カードの状態を保存する変数
   private Card[] cards;
@@ -59,6 +60,7 @@ public class SecondPlayerActivity extends AppCompatActivity {
 
   private SharedPreferences pref;
   private final String PLAYER2_INDEX = "player2_index_";
+  private final String PLAYER2_SCORE = "player2_score";
 
   @SuppressLint("ClickableViewAccessibility")
   @Override
@@ -84,13 +86,10 @@ public class SecondPlayerActivity extends AppCompatActivity {
     final ImageView[] imageCards = new ImageView[10];
     cards = new Card[10];
 
-    // TODO ステータス情報をSharedPreferencesから取得する
-
     // Cardクラス変数のインスタンス生成
     for (int i = 0; i < 10; i++) {
       imageCards[i] = new ImageView(this);
       cards[i] = new Card(resources[i], R.drawable.back);
-      // TODO statusの変更
     }
 
     // カードの範囲内かどうか判定
@@ -153,11 +152,11 @@ public class SecondPlayerActivity extends AppCompatActivity {
     });
 
     // 画面横幅の1/6サイズ分をカードの横幅に設定
-    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) ((p.x - convertDp2Px(16, this)) / 6), MP);
+    LinearLayout.LayoutParams params
+        = new LinearLayout.LayoutParams((int) ((p.x - convertDp2Px(16, this)) / 6), MP);
 
     float margin = convertDp2Px(4, this);
     params.setMargins(0, (int) margin, 0, (int) margin);
-
 
     for (int i = 0; i < 10; i++) {
       imageCards[i].setImageResource(resources[i]);
@@ -272,23 +271,25 @@ public class SecondPlayerActivity extends AppCompatActivity {
                   String key = PLAYER2_INDEX + i;
                   editor.putBoolean(key, cards[i].isStatus());
                 }
+                editor.putInt(PLAYER2_SCORE,sumNumber);
                 editor.apply();
 
-                init();
+                Intent intent = new Intent(getApplicationContext(),ResultActivity.class);
+                startActivity(intent);
+                CustomIntent.customType(SecondPlayerActivity.this,"left-to-right");
+
+                finish();
+
 
               }
             });
         builder.show();
       }
     });
-  }
 
-  // 選択したカードを裏返しにする
-  public void changeView(int index) {
-    ImageView imageView = (ImageView) linearLayout.getChildAt(index);
-    // statusをtrueにする
-    cards[index].setStatus(true);
-    imageView.setImageResource(cards[index].getBack());
+    // 初期化処理
+    init();
+
   }
 
   public void init(){
@@ -311,6 +312,16 @@ public class SecondPlayerActivity extends AppCompatActivity {
       }
     }
   }
+
+  // 選択したカードを裏返しにする
+  public void changeView(int index) {
+    ImageView imageView = (ImageView) linearLayout.getChildAt(index);
+    // statusをtrueにする
+    cards[index].setStatus(true);
+    imageView.setImageResource(cards[index].getBack());
+  }
+
+
 
   /**
    * dpからpixelへの変換
