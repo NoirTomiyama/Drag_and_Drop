@@ -2,9 +2,9 @@ package jp.tomiyama.noir.drag_and_drop;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import maes.tech.intentanim.CustomIntent;
 
@@ -72,11 +71,11 @@ public class ResultActivity extends AppCompatActivity {
     SharedPreferences pref = getSharedPreferences("numeric_app", MODE_PRIVATE);
 
     final int[] player1_score = {pref.getInt(PLAYER1_SCORE, 0)};
-    final int[] player2_score = {pref.getInt(PLAYER2_SCORE,0)};
+    final int[] player2_score = {pref.getInt(PLAYER2_SCORE, 0)};
 
-    winNumber = pref.getInt(WIN_NUMBER,0);
-    loseNumber = pref.getInt(LOSE_NUMBER,0);
-    turnNumber = pref.getInt(TURN_NUMBER,0);
+    winNumber = pref.getInt(WIN_NUMBER, 0);
+    loseNumber = pref.getInt(LOSE_NUMBER, 0);
+    turnNumber = pref.getInt(TURN_NUMBER, 0);
 
 //    Display display = getWindowManager().getDefaultDisplay();
 //    Point p = new Point();
@@ -85,10 +84,10 @@ public class ResultActivity extends AppCompatActivity {
 //    Log.d("p", String.valueOf(p));
 
 
-    if(player1_score[0] > player2_score[0]){
-      winNumber ++;
-    }else{
-      loseNumber ++;
+    if (player1_score[0] > player2_score[0]) {
+      winNumber++;
+    } else {
+      loseNumber++;
     }
     turnNumber++;
 
@@ -97,51 +96,81 @@ public class ResultActivity extends AppCompatActivity {
     // TODO 時間差で表示
     handler.postDelayed(() -> {
 
-      if(player1_score[0] > player2_score[0]){
+      if (player1_score[0] > player2_score[0]) {
         score1_textView.setText("Player1 Win");
         score2_textView.setText("Player2 Lose");
-      }else{
+      } else {
         score1_textView.setText("Player1 Lose");
         score2_textView.setText("Player2 Win");
       }
 
-      List<Integer> digits = new ArrayList<>();
+      ArrayList<Integer> digits1 = new ArrayList<>();
+      ArrayList<Integer> digits2 = new ArrayList<>();
 
-      while(player1_score[0] > 0) {
-        digits.add(player1_score[0] % 10);
+      while (player1_score[0] > 0) {
+        digits1.add(player1_score[0] % 10);
         player1_score[0] /= 10;
       }
 
-      while(player2_score[0] > 0) {
-        digits.add(player2_score[0] % 10);
+      while (player2_score[0] > 0) {
+        digits2.add(player2_score[0] % 10);
         player2_score[0] /= 10;
       }
 
-      for(int i = 0; i < 4; i++){
-        imageViews[i].setImageResource(resources[digits.get(i)]);
+      if(digits1.size()==1){
+        imageViews[0].setImageResource(R.drawable.empty);
+        imageViews[1].setImageResource(resources[digits1.get(0)]);
+      }else{
+        imageViews[0].setImageResource(resources[digits1.get(1)]);
+        imageViews[1].setImageResource(resources[digits1.get(0)]);
       }
 
-      digits.clear();
+      if(digits2.size()==1){
+        imageViews[2].setImageResource(R.drawable.empty);
+        imageViews[3].setImageResource(resources[digits2.get(0)]);
+      }else{
+        imageViews[2].setImageResource(resources[digits2.get(1)]);
+        imageViews[3].setImageResource(resources[digits2.get(0)]);
+      }
+
+
+
+
+
+
+      digits1.clear();
+      digits2.clear();
 
       // 画像に置き換える
-    },1500);
+    }, 1500);
 
 
     Button button = findViewById(R.id.button);
 
-    if(turnNumber == 5) button.setText("Final Result");
+    if (turnNumber == 5) button.setText("Final Result");
 
     button.setOnClickListener(v -> {
 
       // 5回勝負したら
-      if(turnNumber == 5){
+      if (turnNumber == 5) {
         // 終了
         // finishActivityに遷移
+        Intent intent = new Intent(getApplicationContext(), FinalResultActivity.class);
 
-      }else{
+        boolean flag;
+        flag = winNumber > loseNumber;
+
+        // TODO 引き分けの処理
+
+        intent.putExtra("WINNER", flag);
+        startActivity(intent);
+        CustomIntent.customType(ResultActivity.this, "up-to-bottom");
+
+
+      } else {
         Intent intent = new Intent(getApplicationContext(), FirstPlayerActivity.class);
         startActivity(intent);
-        CustomIntent.customType(ResultActivity.this,"right-to-left");
+        CustomIntent.customType(ResultActivity.this, "right-to-left");
 
         // win,loseの数の保存
 
@@ -151,9 +180,9 @@ public class ResultActivity extends AppCompatActivity {
       Log.d("lose", String.valueOf(loseNumber));
 
       SharedPreferences.Editor editor = pref.edit();
-      editor.putInt(WIN_NUMBER,winNumber);
-      editor.putInt(LOSE_NUMBER,loseNumber);
-      editor.putInt(TURN_NUMBER,turnNumber);
+      editor.putInt(WIN_NUMBER, winNumber);
+      editor.putInt(LOSE_NUMBER, loseNumber);
+      editor.putInt(TURN_NUMBER, turnNumber);
       editor.apply();
 
       finish();

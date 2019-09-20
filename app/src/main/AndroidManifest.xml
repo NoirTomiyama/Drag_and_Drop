@@ -10,9 +10,19 @@
         android:screenOrientation="userLandscape"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ResultActivity"></activity>
-        <activity android:name=".SecondPlayerActivity" />
-        <activity android:name=".StartActivity"
+        <activity
+            android:name=".FinalResultActivity"
+            android:screenOrientation="userLandscape">
+
+        </activity>
+        <activity
+            android:name=".ResultActivity"
+            android:screenOrientation="userLandscape" />
+        <activity
+            android:name=".SecondPlayerActivity"
+            android:screenOrientation="userLandscape" />
+        <activity
+            android:name=".StartActivity"
             android:screenOrientation="userLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,7 +31,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".FirstPlayerActivity">
+        <activity
+            android:name=".FirstPlayerActivity"
+            android:screenOrientation="userLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
