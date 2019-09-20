@@ -10,7 +10,7 @@
         android:id="@+id/player1_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="スタート画面\nあをみんにデザインを任せる"
+        android:text="スタート画面\n２つの数字を選んで対戦しよう"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
